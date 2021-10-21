@@ -6,86 +6,94 @@
 /*   By: acolin <acolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/20 09:24:18 by acolin            #+#    #+#             */
-/*   Updated: 2021/10/20 17:47:19 by acolin           ###   ########.fr       */
+/*   Updated: 2021/10/21 18:39:29 by acolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*next(char **buffer_s)
+char	*clear_buf(char *buffer)
 {
-	int		i;
-	char	*buf_tmp;
-	char 	*ret;
-
-	buf_tmp = NULL;
-	i = 0;
-	while (buffer_s[0][i] != '\n' && buffer_s[0][i] != '\0')
-		i++;
-	buf_tmp = ft_strdup(buffer_s[0], ft_strlen(buffer_s[0]));
-	free(buffer_s[0]);
-	ft_strlcat(buffer_s[0], buf_tmp + i + 1, ft_strlen(buf_tmp + i));
-	ret = ft_strdup(buf_tmp , i);
-	if (ft_strlen(ret) == 0)
-		free(ret);
-	buf_tmp = ft_strdup(buf_tmp + i + 1, ft_strlen(buf_tmp + i));
-	buffer_s[0] = ft_strdup(buf_tmp, ft_strlen(buf_tmp));
-	free(buf_tmp);
-	return (ret);
-}
-
-char	*get_line(char *buffer, char **buffer_s)
-{
-	int		i;
-	char	*buf_tmp;
+	int	i;
 
 	i = 0;
-	buf_tmp = NULL;
-	while (buffer_s[0][i] != '\n')
+	while (buffer[i] != '\0')
+	{
+		buffer[i] = '\0';
 		i++;
-	buf_tmp = ft_strdup(buffer_s[0], ft_strlen(buffer_s[0]));
-	free(buffer_s[0]);
-	buffer = malloc(sizeof(char) * i + 2);
-	buffer_s[0] = malloc(sizeof(char) * ft_strlen(buf_tmp) - i + 1);
-	ft_strlcpy(buffer, buf_tmp, i + 1);
-	ft_strlcpy(buffer_s[0], (buf_tmp + i + 1), ft_strlen(buf_tmp) - i);
-	free(buf_tmp);
+	}
 	return (buffer);
 }
 
-void	swap_buf(char *buffer, char **buffer_s)
+int	check_line(char *buffer)
 {
-	char	*buf_tmp;
+	int	i;
 
-	buf_tmp = NULL;
-	if (*buffer_s)
+	i = 0;
+	while (buffer[i] != '\0')
 	{
-		buf_tmp = ft_strdup(*buffer_s, ft_strlen(buffer_s[0]));
-		free(*buffer_s);
-		*buffer_s = malloc(ft_strlen(buf_tmp) + BUFFER_SIZE + 2);
-		ft_strlcpy(*buffer_s, buf_tmp, ft_strlen(buf_tmp));
-		free(buf_tmp);
-		ft_strlcat(*buffer_s, buffer, ft_strlen(*buffer_s) + BUFFER_SIZE + 2);
+		if (buffer[i] == '\n')
+			return (1);
+		i++;
 	}
-	else
+	return (0);
+}
+
+char	*get_line(char *buffer, char *save)
+{
+	char	*line;
+	int		i;
+
+	i = 0;
+	while (buffer[i] != '\n' && buffer[i] != '\0')
+		i++;
+	line = malloc(sizeof(char) * i + 1);
+	ft_strlcpy(line, buffer, i + 2);
+	ft_strlcpy(save, buffer + i + 1, ft_strlen(buffer) + 1);
+	if (line[0] == '\0')
 	{
-		*buffer_s = malloc(BUFFER_SIZE + 2);
-		ft_strlcat(*buffer_s, buffer, BUFFER_SIZE + 2);
+		free(line);
+		line = NULL;
+		return (line);	
 	}
+	return (line);
+}
+
+char	*cat_buf(char *dst, char *src)
+{
+	char	*tmp;
+	size_t	tmp_size;
+
+	tmp = dst;
+	tmp_size = ft_strlen(tmp);
+	ft_strlcpy(dst, tmp, (tmp_size + BUFFER_SIZE + 1));
+	ft_strlcat(dst, src, (tmp_size + BUFFER_SIZE + 1));
+	return (dst);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*buffer_s;
 	char		*buffer;
+	char		*buff_stock;
+	static char	save[BUFFER_SIZE];
 
 	if (fd < 0)
 		return (NULL);
-	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (BUFFER_SIZE == 0)
+		return (NULL);
+	buffer = malloc(sizeof(char) * BUFFER_SIZE);
+	buff_stock = save;
 	while (read(fd, buffer, BUFFER_SIZE) > 0)
 	{
-		swap_buf(buffer, &buffer_s);
-		return (get_line(buffer, &buffer_s));
+		if (buffer[0] == '\0')
+			return (NULL);
+		check_buffer(buffer, BUFFER_SIZE);
+		printf("buffer = %s", buffer);
+		buff_stock = cat_buf(buff_stock, buffer);
+		buffer = clear_buf(buffer);
+		if (check_line(buff_stock))
+			break ;
 	}
-	return (next(&buffer_s));
+	free(buffer);
+	return (get_line(buff_stock, save));
 }

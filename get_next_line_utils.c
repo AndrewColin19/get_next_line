@@ -6,7 +6,7 @@
 /*   By: acolin <acolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/20 10:19:46 by acolin            #+#    #+#             */
-/*   Updated: 2021/10/20 16:55:56 by acolin           ###   ########.fr       */
+/*   Updated: 2021/10/21 15:59:14 by acolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-char	*ft_strdup(const char *s, size_t size)
+char	*ft_strdup(const char *s)
 {
 	char	*str;
 	size_t	i;
@@ -31,11 +31,10 @@ char	*ft_strdup(const char *s, size_t size)
 	if (!str)
 		return (NULL);
 	i = 0;
-	while (s[i] != '\0' && size)
+	while (s[i] != '\0')
 	{
 		str[i] = s[i];
 		i++;
-		size--;
 	}
 	str[i] = '\0';
 	return (str);
@@ -50,9 +49,7 @@ size_t	ft_strlcat(char *dst, const char *src, size_t size)
 	size_src = ft_strlen(src);
 	size_dst = ft_strlen(dst);
 	i = 0;
-	if (size <= size_dst)
-		return (size + size_src);
-	while (src[i] != '\0' && (i + size_dst) < (size - 1))
+	while (size--)
 	{
 		dst[i + size_dst] = src[i];
 		i++;
@@ -78,4 +75,18 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 	while (src[i])
 		i++;
 	return (i);
+}
+
+void	check_buffer(char *buffer, size_t size)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < size)
+		i++;
+	while (buffer[i] != '\0')
+	{
+		buffer[i] = '\0';
+		i++;
+	}
 }
