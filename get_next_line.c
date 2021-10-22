@@ -3,21 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
+
 /*   By: acolin <acolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/20 09:24:18 by acolin            #+#    #+#             */
-/*   Updated: 2021/10/21 18:39:29 by acolin           ###   ########.fr       */
+/*   Updated: 2021/10/22 14:32:03 by acolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*clear_buf(char *buffer)
+char	*clear_buf(char *buffer, size_t size)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
-	while (buffer[i] != '\0')
+	while (i < size)
 	{
 		buffer[i] = '\0';
 		i++;
@@ -49,12 +50,12 @@ char	*get_line(char *buffer, char *save)
 		i++;
 	line = malloc(sizeof(char) * i + 1);
 	ft_strlcpy(line, buffer, i + 2);
-	ft_strlcpy(save, buffer + i + 1, ft_strlen(buffer) + 1);
+	ft_strlcpy(save, buffer + i + 1, ft_strlen(buffer));
+	line[i + 1] = '\0';
 	if (line[0] == '\0')
 	{
 		free(line);
-		line = NULL;
-		return (line);	
+		return (NULL);	
 	}
 	return (line);
 }
@@ -81,16 +82,16 @@ char	*get_next_line(int fd)
 		return (NULL);
 	if (BUFFER_SIZE == 0)
 		return (NULL);
-	buffer = malloc(sizeof(char) * BUFFER_SIZE);
+	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
 	buff_stock = save;
 	while (read(fd, buffer, BUFFER_SIZE) > 0)
 	{
 		if (buffer[0] == '\0')
 			return (NULL);
-		check_buffer(buffer, BUFFER_SIZE);
-		printf("buffer = %s", buffer);
-		buff_stock = cat_buf(buff_stock, buffer);
-		buffer = clear_buf(buffer);
+		if(check_buffer(buffer, BUFFER_SIZE) == NULL)
+			return (NULL);
+		cat_buf(buff_stock, buffer);
+		clear_buf(buffer, BUFFER_SIZE);
 		if (check_line(buff_stock))
 			break ;
 	}

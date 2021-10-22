@@ -6,7 +6,7 @@
 /*   By: acolin <acolin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/20 10:19:46 by acolin            #+#    #+#             */
-/*   Updated: 2021/10/21 15:59:14 by acolin           ###   ########.fr       */
+/*   Updated: 2021/10/22 17:05:48 by acolin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,10 +77,15 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t size)
 	return (i);
 }
 
-void	check_buffer(char *buffer, size_t size)
+char	*check_buffer(char *buffer, size_t size)
 {
 	size_t	i;
 
+	if (buffer[size] != '\0')
+	{
+		free(buffer);
+		return (NULL);
+	}
 	i = 0;
 	while (i < size)
 		i++;
@@ -89,4 +94,6 @@ void	check_buffer(char *buffer, size_t size)
 		buffer[i] = '\0';
 		i++;
 	}
+	buffer[i] = '\0';
+	return (buffer);
 }
